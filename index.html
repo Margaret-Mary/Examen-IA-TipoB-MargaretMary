@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balloon Escape - Margaret-Mary</title>
+    <style>
+        body {
+            margin: 0; padding: 0; overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh; display: flex; flex-direction: column;
+            transition: background-color 0.4s;
+        }
+
+        #game-area {
+            flex-grow: 1; position: relative; cursor: none;
+            background: #fdfdfd;
+        }
+
+        /* 1. THE NEW BALLOON */
+        #balloon {
+            position: absolute; width: 70px; height: auto;
+            pointer-events: none; transform: translate(-50%, -50%);
+            z-index: 100;
+        }
+
+        /* 2. DYNAMITE MINES */
+        .mine { position: absolute; width: 60px; height: auto; }
+        #m1 { top: 20%; left: 30%; }
+        #m2 { top: 60%; left: 15%; }
+        #m3 { top: 40%; left: 75%; }
+        #m4 { top: 80%; left: 50%; }
+
+        #goal {
+            position: absolute; bottom: 20px; right: 20px;
+            width: 140px; height: 140px;
+            border: 5px dashed #27ae60; border-radius: 20px;
+            background: rgba(46, 204, 113, 0.15);
+            display: flex; align-items: center; justify-content: center;
+            color: #27ae60; font-weight: bold; text-align: center;
+            font-size: 18px;
+        }
+
+        #overlay {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center; display: none; z-index: 200;
+        }
+        
+        .status-gif { 
+            width: 380px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 50px rgba(0,0,0,0.6); 
+        }
+
+        footer {
+            height: 85px; background: #2c3e50; color: white;
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            border-top: 5px solid #34495e;
+        }
+        
+        .my-photo { 
+            width: 60px; height: 60px; border-radius: 50%; 
+            border: 2px solid white; object-fit: cover; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-area">
+        <img id="balloon" src="https://i.pinimg.com/originals/d5/fe/a4/d5fea402bd80f0acb086d85719984860.png" alt="Balloon">
+        
+        <img class="mine" id="m1" src="http://pngimg.com/uploads/dynamite/dynamite_PNG6.png">
+        <img class="mine" id="m2" src="http://pngimg.com/uploads/dynamite/dynamite_PNG6.png">
+        <img class="mine" id="m3" src="http://pngimg.com/uploads/dynamite/dynamite_PNG6.png">
+        <img class="mine" id="m4" src="http://pngimg.com/uploads/dynamite/dynamite_PNG6.png">
+
+        <div id="goal">SAFE ZONE</div>
+
+        <div id="overlay">
+            <h1 id="status-text" style="font-size: 65px; margin-bottom: 15px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5);"></h1>
+            <img id="status-gif" class="status-gif" src="">
+        </div>
+    </div>
+
+    <footer>
+        <img src="me.jpg" alt="Margaret-Mary" class="my-photo">
+        <p style="font-size: 24px; font-weight: bold; margin: 0;">Margaret-Mary</p>
+    </footer>
+
+    <script>
+        const area = document.getElementById('game-area');
+        const balloon = document.getElementById('balloon');
+        const mines = document.querySelectorAll('.mine');
+        const goal = document.getElementById('goal');
+        const overlay = document.getElementById('overlay');
+        const statusText = document.getElementById('status-text');
+        const statusGif = document.getElementById('status-gif');
+
+        let playing = true;
+
+        area.addEventListener('mousemove', (e) => {
+            if (!playing) return;
+            
+            const rect = area.getBoundingClientRect();
+            balloon.style.left = (e.clientX - rect.left) + 'px';
+            balloon.style.top = (e.clientY - rect.top) + 'px';
+
+            checkCollisions();
+        });
+
+        function checkCollisions() {
+            const b = balloon.getBoundingClientRect();
+
+            // Collision with Dynamite
+            mines.forEach(m => {
+                const r = m.getBoundingClientRect();
+                if (!(b.right < r.left || b.left > r.right || b.bottom < r.top || b.top > r.bottom)) {
+                    endGame("¡GAME OVER!", "#e74c3c", "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmZpZzR6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6/3Owa0TWYqHi5RgzR8a/giphy.gif");
+                }
+            });
+
+            // Collision with Goal
+            const g = goal.getBoundingClientRect();
+            if (!(b.right < g.left || b.left > g.right || b.bottom < g.top || b.top > g.bottom)) {
+                // CONFETTI GIF LINK ADDED HERE
+                endGame("¡SUCCESS!", "#2ecc71", "https://acegif.com/wp-content/uploads/gif/confetti-35.gif");
+            }
+        }
+
+        function endGame(msg, color, gif) {
+            playing = false;
+            document.body.style.backgroundColor = color;
+            statusText.innerText = msg;
+            statusText.style.color = "white";
+            statusGif.src = gif;
+            overlay.style.display = 'block';
+            area.style.cursor = 'default';
+        }
+    </script>
+</body>
+</html>
